@@ -1,0 +1,47 @@
+version: '3.9'
+
+services:
+
+  patroni:
+    image: patroni-test:latest
+    deploy:
+      endpoint_mode: dnsrr
+      replicas: 3
+      update_config:
+        parallelism: 1
+        delay: 10s
+    environment:
+      PATRONI_NAME: 'member_{{.Task.Slot}}'
+      PATRONI_POSTGRESQL_DATA_DIR: '/var/lib/postgresql/data/{{.Task.Slot}}'
+      PATRONI_RESTAPI_CONNECT_ADDRESS: '{{.Task.Name}}:8008'
+      PATRONI_POSTGRESQL_CONNECT_ADDRESS: '{{.Task.Name}}:5432'
+    depends_on:
+      - etcd
+    networks:
+      - default
+      - haproxy
+          
+  etcd:
+    image: "bitnami/etcd:latest"
+    hostname: "etcd_{{.Task.Slot}}"
+    deploy:
+      endpoint_mode: dnsrr
+      replicas: 3
+      update_config:
+        parallelism: 1
+        delay: 10s
+    environment:
+      ETCD_NAME: "etcd_{{.Task.Slot}}"
+      ALLOW_NONE_AUTHENTICATION: "yes"
+      ETCD_INITIAL_CLUSTER_STATE: "new"
+      ETCD_LISTEN_PEER_URLS: "http://0.0.0.0:2380"
+      ETCD_LISTEN_CLIENT_URLS: "http://0.0.0.0:2379"
+      ETCD_ADVERTISE_CLIENT_URLS: "http://etcd_{{.Task.Slot}}:2379"
+      ETCD_INITIAL_ADVERTISE_PEER_URLS: "http://etcd_{{.Task.Slot}}:2380"
+      ETCD_INITIAL_CLUSTER: "etcd_1=http://etcd_1:2380,etcd_2=http://etcd_2:2380,etcd_3=http://etcd_3:2380"
+    networks:
+      - default
+
+networks:
+  haproxy:
+    external: true
