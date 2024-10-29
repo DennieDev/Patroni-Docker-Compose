@@ -3,7 +3,7 @@ version: '3.9'
 services:
 
   patroni:
-    image: patroni-test:latest
+    image: ghcr.io/denniedev/patroni-docker-compose:main
     deploy:
       endpoint_mode: dnsrr
       replicas: 3
@@ -22,7 +22,7 @@ services:
       - haproxy
           
   etcd:
-    image: "bitnami/etcd:latest"
+    image: bitnami/etcd:latest
     hostname: "etcd_{{.Task.Slot}}"
     deploy:
       endpoint_mode: dnsrr
