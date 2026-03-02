@@ -14,8 +14,6 @@ Simply build the image and deploy it, to persist the data you should mount somet
 Compose example:
 
 ```yaml
-version: '3.9'
-
 services:
 
   patroni:
