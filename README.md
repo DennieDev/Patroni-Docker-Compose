@@ -32,6 +32,7 @@ services:
     depends_on:
       - etcd
     networks:
+      - default
       - haproxy
           
   etcd:
@@ -52,6 +53,8 @@ services:
       ETCD_ADVERTISE_CLIENT_URLS: "http://etcd_{{.Task.Slot}}:2379"
       ETCD_INITIAL_ADVERTISE_PEER_URLS: "http://etcd_{{.Task.Slot}}:2380"
       ETCD_INITIAL_CLUSTER: "etcd_1=http://etcd_1:2380,etcd_2=http://etcd_2:2380,etcd_3=http://etcd_3:2380"
+    networks:
+      - default
 
 networks:
   haproxy:
